@@ -87,7 +87,7 @@ export function Hero() {
                 {/* Stats Grid */}
                 <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
                     {[
-                        { icon: "💰", label: "Impact Prize Pool", value: "₹150,000", color: "bg-blue-600/20" },
+                        { icon: "💰", label: "Impact Prize Pool", value: "₹50,000", color: "bg-blue-600/20" },
                         { icon: "🌏", label: "Target Industries", value: "Global Focus", color: "bg-indigo-600/20" },
                         { icon: "👥", label: "Team Size", value: "Max 4 Members", color: "bg-purple-600/20" }
                     ].map((stat, idx) => (

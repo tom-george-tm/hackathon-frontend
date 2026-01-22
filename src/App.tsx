@@ -4,6 +4,7 @@ import { Footer } from "@/components/Footer"
 import { Landing } from "@/pages/Landing"
 import { Register } from "@/pages/Register"
 import { Teams } from "@/pages/Teams"
+import { Login } from "@/pages/Login"
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/register" element={<Register />} />
           <Route path="/teams" element={<Teams />} />
+          <Route path="/login" element={<Login />} />
         </Routes>
       </main>
       <Footer />

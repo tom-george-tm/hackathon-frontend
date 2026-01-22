@@ -11,9 +11,14 @@ export function Navbar() {
                     <div className="size-8 bg-blue-600 rounded-lg flex items-center justify-center">
                         <div className="text-white font-bold text-xl">M</div>
                     </div>
-                    <span className="text-xl font-bold bg-gradient-to-r from-blue-400 to-indigo-600 bg-clip-text text-transparent">
-                        MindMesh
-                    </span>
+                    <div className="flex flex-col leading-none">
+                        <span className="text-xl font-bold bg-gradient-to-r from-blue-400 to-indigo-600 bg-clip-text text-transparent">
+                            MindMesh
+                        </span>
+                        <span className="text-[10px] font-bold text-white-400/60  tracking-widest mt-0.5 ml-0.5">
+                            Thoughtminds
+                        </span>
+                    </div>
                 </Link>
 
                 <div className="hidden md:flex items-center gap-8">
