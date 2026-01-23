@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useForm, useFieldArray } from "react-hook-form"
+import { useForm, useFieldArray, type SubmitHandler } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { useNavigate } from "react-router-dom"
@@ -10,8 +10,6 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Separator } from "@/components/ui/separator"
-import { Badge } from "@/components/ui/badge"
 import { Trash2, PlusCircle, CheckCircle2, User, Briefcase, MessagesSquare, ChevronRight, ChevronLeft } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
@@ -20,7 +18,7 @@ const memberSchema = z.object({
     name: z.string().min(1, "Name is required"),
     email: z.string().email("Invalid email"),
     tms_id: z.string().min(1, "Employee ID is required"),
-    is_team_lead: z.boolean().default(false),
+    is_team_lead: z.boolean(),
 })
 
 const registrationSchema = z.object({
@@ -75,7 +73,7 @@ export function Register() {
 
     const prevStep = () => setStep(s => Math.max(s - 1, 1))
 
-    const onSubmit = async (data: RegistrationFormValues) => {
+    const onSubmit: SubmitHandler<RegistrationFormValues> = async (data) => {
         setIsSubmitting(true)
         try {
             const payload = {
