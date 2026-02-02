@@ -1,7 +1,7 @@
 import axios, { AxiosError } from "axios";
 
 export const runtimeApi = axios.create({
-  baseURL: "/api/v1",
+  baseURL: `${import.meta.env.VITE_BASE_URL}/api/v1`,
 });
 
 runtimeApi.interceptors.request.use(

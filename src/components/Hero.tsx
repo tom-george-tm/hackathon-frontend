@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { motion, type Variants } from "framer-motion"
 import { useNavigate } from "react-router-dom"
+import tmLogo from "@/assets/tm-logo.svg"
 
 export function Hero() {
     const navigate = useNavigate()
@@ -60,7 +61,7 @@ export function Hero() {
                     <span className="bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent">MindMesh</span>
                 </motion.h1>
                 <motion.div variants={itemVariants} className="flex justify-center items-center text-xs md:text-sm font-bold text-white tracking-[0.2em] font-mono mb-8 uppercase opacity-80">
-                    TH<img src="/src/assets/tm-logo.svg" alt="o" className="size-3 md:size-4 mx-[1px] mr-[2px] brightness-0 invert" />UGHTMINDS
+                    TH<img src={tmLogo} alt="o" className="size-3 md:size-4 mx-[1px] mr-[2px] brightness-0 invert" />UGHTMINDS
                 </motion.div>
 
                 <motion.p variants={itemVariants} className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto mb-10 leading-relaxed">

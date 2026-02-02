@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Link, useNavigate, useLocation } from "react-router-dom"
 import { motion } from "framer-motion"
 import { runtimeApi } from "@/services/instance/axios"
+import tmLogo from "@/assets/tm-logo.svg"
 
 export function Navbar() {
     const navigate = useNavigate();
@@ -51,7 +52,7 @@ export function Navbar() {
                             MindMesh
                         </span>
                         <div className="flex items-center text-[10px] font-bold text-white tracking-widest mt-0.5 ml-0.5 font-mono group-hover:text-blue-400 transition-colors uppercase">
-                            TH <img src="/src/assets/tm-logo.svg" alt="o" className="size-2.5 mx-[1px] mr-[2px] brightness-0 invert" /> UGHTMINDS
+                            TH <img src={tmLogo} alt="o" className="size-2.5 mx-[1px] mr-[2px] brightness-0 invert" /> UGHTMINDS
                         </div>
                     </div>
                 </Link>
