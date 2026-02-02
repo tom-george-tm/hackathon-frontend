@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Trash2 } from "lucide-react"
 
 interface TeamMember {
     name: string
@@ -16,18 +17,18 @@ interface TeamCardProps {
     idea_description: string
     members: TeamMember[]
     impact_description: string
-    track?: string
     status?: "Pending" | "Approved" | "Rejected"
     admin_remarks?: string | null
     isAdmin?: boolean
     onStatusUpdate?: (status: "Approved" | "Rejected", remarks?: string) => void
+    onDelete?: () => void
     onClick?: () => void
 }
 
 export function TeamCard({
-    team_name, idea_description, members, track = "General",
+    team_name, idea_description, members,
     status = "Pending", admin_remarks, isAdmin, onStatusUpdate,
-    onClick
+    onDelete, onClick
 }: TeamCardProps) {
 
     const [remarks, setRemarks] = useState("")
@@ -39,12 +40,6 @@ export function TeamCard({
         Rejected: "bg-red-600/20 text-red-400 border-red-400/30"
     }
 
-    const trackColor =
-        track === "Healthcare" ? "bg-blue-600" :
-            track === "Climate Tech" ? "bg-cyan-600" :
-                track === "Finance" ? "bg-indigo-600" :
-                    "bg-gray-600";
-
     return (
         <Card
             className="bg-[#1e2330] border-white/5 overflow-hidden group hover:border-blue-500/30 transition-all duration-300 cursor-pointer"
@@ -52,13 +47,25 @@ export function TeamCard({
         >
             <CardContent className="p-6">
                 <div className="flex justify-between items-start mb-4">
-                    <div className="flex gap-2">
-                        <Badge className={`${trackColor} hover:${trackColor} text-[10px] uppercase tracking-wider border-none rounded-sm`}>
-                            {track}
-                        </Badge>
+                    <div className="flex gap-2 items-center">
                         <Badge variant="outline" className={`text-[10px] uppercase tracking-wider rounded-sm ${statusColors[status]}`}>
                             {status}
                         </Badge>
+                        {isAdmin && (
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="size-6 text-muted-foreground hover:text-red-400 hover:bg-red-400/10 transition-colors"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (confirm(`Are you sure you want to delete "${team_name}"?`)) {
+                                        onDelete?.();
+                                    }
+                                }}
+                            >
+                                <Trash2 className="size-3.5" />
+                            </Button>
+                        )}
                     </div>
                     <div className="flex -space-x-2">
                         {members.slice(0, 3).map((m, i) => (

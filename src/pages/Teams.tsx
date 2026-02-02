@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { runtimeApi } from "@/services/instance/axios"
 import { Search, Filter, LayoutGrid } from "lucide-react"
 import { Input } from "@/components/ui/input"
@@ -26,43 +26,39 @@ interface Team {
     members: any[]
     status: "Pending" | "Approved" | "Rejected"
     admin_remarks: string | null
-}
-
-// Mock function to assign tracks randomly for UI demo (since backend doesn't have it)
-const getMockTrack = (index: number) => {
-    const tracks = ["Healthcare", "Climate Tech", "Finance", "Infrastructure"]
-    return tracks[index % tracks.length]
+    created_at?: string // Assuming this exists for sorting
 }
 
 export function Teams() {
-    const [teams, setTeams] = useState<Team[]>([])
+    const [allTeams, setAllTeams] = useState<Team[]>([])
     const [loading, setLoading] = useState(true)
-    const [search, setSearch] = useState("")
+    const [searchQuery, setSearchQuery] = useState("")
     const [page, setPage] = useState(1)
-    const [totalPages, setTotalPages] = useState(1)
-    const [totalTeams, setTotalTeams] = useState(0)
+    const [selectedStatus, setSelectedStatus] = useState("all")
+    const [sortOrder, setSortOrder] = useState("newest")
     const [selectedTeam, setSelectedTeam] = useState<Team | null>(null)
     const isAdmin = !!localStorage.getItem("admin_token")
+    const PAGE_SIZE = 9
 
     // For rejection remarks in Modal
     const [modalRemarks, setModalRemarks] = useState("")
     const [showModalRemarks, setShowModalRemarks] = useState(false)
 
-
-    // ... inside Teams component
     const fetchTeams = async () => {
         setLoading(true)
         try {
             const response = await runtimeApi.get("/teams", {
                 params: {
-                    page: page,
-                    page_size: 9,
-                    search: search || undefined
+                    page: 1,
+                    page_size: 200 // Fetch a reasonable batch for frontend filtering
                 }
             })
-            setTeams(response.data.teams)
-            setTotalPages(response.data.total_pages)
-            setTotalTeams(response.data.total)
+            // Force status to be a string if it comes as an object/enum from backend
+            const normalizedTeams = (response.data.teams || []).map((t: any) => ({
+                ...t,
+                status: typeof t.status === 'string' ? t.status : (Object.keys(t.status || {})[0] || "Pending")
+            }))
+            setAllTeams(normalizedTeams)
         } catch (error) {
             console.error("Failed to fetch teams", error)
         } finally {
@@ -80,12 +76,63 @@ export function Teams() {
         }
     }
 
+    const handleDeleteTeam = async (teamId: string) => {
+        try {
+            await runtimeApi.delete(`/admin/teams/${teamId}`)
+            fetchTeams() // Refresh
+        } catch (error) {
+            console.error("Failed to delete team", error)
+            alert("Error deleting team. Check console.")
+        }
+    }
+
     useEffect(() => {
-        const debounce = setTimeout(() => {
-            fetchTeams()
-        }, 300)
-        return () => clearTimeout(debounce)
-    }, [search, page])
+        fetchTeams()
+    }, [])
+
+    const filteredAndSortedTeams = useMemo(() => {
+        let result = [...allTeams]
+
+        // 1. Filter by Status
+        if (selectedStatus && selectedStatus !== "all") {
+            const targetStatus = selectedStatus.toLowerCase()
+            result = result.filter(team => {
+                const currentStatus = String(team.status || "").toLowerCase()
+                return currentStatus === targetStatus
+            })
+        }
+
+        // 2. Filter by Search
+        if (searchQuery.trim()) {
+            const query = searchQuery.toLowerCase()
+            result = result.filter(team => {
+                const nameMatch = String(team.team_name || "").toLowerCase().includes(query)
+                const ideaMatch = String(team.idea_description || "").toLowerCase().includes(query)
+                const impactMatch = String(team.impact_description || "").toLowerCase().includes(query)
+                return nameMatch || ideaMatch || impactMatch
+            })
+        }
+
+        // 3. Sort
+        result.sort((a, b) => {
+            const dateA = a.created_at ? new Date(a.created_at).getTime() : 0
+            const dateB = b.created_at ? new Date(b.created_at).getTime() : 0
+
+            if (sortOrder === "newest") return dateB - dateA
+            if (sortOrder === "oldest") return dateA - dateB
+            return 0
+        })
+
+        return result
+    }, [allTeams, searchQuery, selectedStatus, sortOrder])
+
+    const totalPages = Math.ceil(filteredAndSortedTeams.length / PAGE_SIZE)
+    const paginatedTeams = filteredAndSortedTeams.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+
+    // Reset to page 1 when filters change
+    useEffect(() => {
+        setPage(1)
+    }, [searchQuery, selectedStatus, sortOrder])
 
     return (
         <div className="min-h-screen bg-[#0f111a] pt-24 pb-20">
@@ -97,13 +144,13 @@ export function Teams() {
                         <Badge variant="outline" className="text-blue-400 border-blue-400/30 mb-4">PUBLIC DIRECTORY</Badge>
                         <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">Registered Teams</h1>
                         <p className="text-muted-foreground max-w-xl">
-                            Exploring the next generation of high-impact AI systems. Browse through {totalTeams > 0 ? totalTeams : '...'} teams committed to solving global challenges.
+                            Exploring the next generation of high-impact AI systems. Browse through {filteredAndSortedTeams.length} teams committed to solving global challenges.
                         </p>
                     </div>
 
                     <div className="bg-secondary/20 rounded-lg px-4 py-2 flex items-center gap-3 border border-white/5">
                         <div className="text-right">
-                            <div className="text-2xl font-bold text-white leading-none">{totalTeams}</div>
+                            <div className="text-2xl font-bold text-white leading-none">{allTeams.length}</div>
                             <div className="text-[10px] uppercase text-muted-foreground font-bold tracking-wider">Total Builders</div>
                         </div>
                         <div className="size-8 rounded bg-blue-600/20 text-blue-400 flex items-center justify-center">
@@ -119,27 +166,27 @@ export function Teams() {
                         <Input
                             placeholder="Search teams or impact pitches..."
                             className="bg-transparent border-none pl-10 h-10 focus-visible:ring-0 text-white placeholder:text-muted-foreground/50"
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
                         />
                     </div>
                     <div className="h-6 w-px bg-white/10 hidden md:block self-center" />
-                    <div className="w-full md:w-[180px]">
-                        <Select defaultValue="all">
+                    <div className="w-full md:w-[200px]">
+                        <Select value={selectedStatus} onValueChange={setSelectedStatus}>
                             <SelectTrigger className="bg-transparent border-none h-10 focus:ring-0 text-muted-foreground">
-                                <SelectValue placeholder="All Tracks" />
+                                <SelectValue placeholder="All Status" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="all">All Tracks</SelectItem>
-                                <SelectItem value="healthcare">Healthcare</SelectItem>
-                                <SelectItem value="climate">Climate Tech</SelectItem>
-                                <SelectItem value="finance">Finance</SelectItem>
+                                <SelectItem value="all">All Status</SelectItem>
+                                <SelectItem value="Pending">Pending</SelectItem>
+                                <SelectItem value="Approved">Approved</SelectItem>
+                                <SelectItem value="Rejected">Rejected</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
                     <div className="h-6 w-px bg-white/10 hidden md:block self-center" />
-                    <div className="w-full md:w-[180px]">
-                        <Select defaultValue="newest">
+                    <div className="w-full md:w-[200px]">
+                        <Select value={sortOrder} onValueChange={setSortOrder}>
                             <SelectTrigger className="bg-transparent border-none h-10 focus:ring-0 text-muted-foreground">
                                 <SelectValue placeholder="Sort by: Newest" />
                             </SelectTrigger>
@@ -149,8 +196,25 @@ export function Teams() {
                             </SelectContent>
                         </Select>
                     </div>
-                    <Button className="bg-blue-600 hover:bg-blue-700 text-white h-10">
-                        <Filter className="size-4 mr-2" /> Filter
+                    {(searchQuery || selectedStatus !== "all") && (
+                        <Button
+                            variant="ghost"
+                            className="text-white/40 hover:text-white h-10 px-4"
+                            onClick={() => {
+                                setSearchQuery("");
+                                setSelectedStatus("all");
+                                setPage(1);
+                            }}
+                        >
+                            Clear
+                        </Button>
+                    )}
+                    <Button
+                        variant="outline"
+                        className="border-white/5 bg-white/5 hover:bg-white/10 text-white h-10"
+                        onClick={fetchTeams}
+                    >
+                        <Filter className="size-4 mr-2" /> Refresh
                     </Button>
                 </div>
 
@@ -161,18 +225,36 @@ export function Teams() {
                             <div key={i} className="h-[300px] rounded-xl bg-[#1e2330] animate-pulse" />
                         ))}
                     </div>
-                ) : (
+                ) : paginatedTeams.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-                        {teams.map((team, idx) => (
+                        {paginatedTeams.map((team) => (
                             <TeamCard
                                 key={team.id}
                                 {...team}
-                                track={getMockTrack(idx)}
                                 isAdmin={isAdmin}
                                 onStatusUpdate={(status, remarks) => handleStatusUpdate(team.id, status, remarks)}
+                                onDelete={() => handleDeleteTeam(team.id)}
                                 onClick={() => setSelectedTeam(team)}
                             />
                         ))}
+                    </div>
+                ) : (
+                    <div className="flex flex-col items-center justify-center py-20 bg-[#1e2330]/50 rounded-2xl border border-dashed border-white/10 mb-12">
+                        <div className="size-16 rounded-full bg-blue-600/10 flex items-center justify-center text-blue-400 mb-6 font-bold text-2xl">?</div>
+                        <h3 className="text-xl font-bold text-white mb-2">No builders found</h3>
+                        <p className="text-muted-foreground text-center max-w-sm">
+                            We couldn't find any teams matching your current filters. Try searching for something else or clearing the filters.
+                        </p>
+                        <Button
+                            variant="link"
+                            className="text-blue-400 mt-4 h-auto p-0"
+                            onClick={() => {
+                                setSearchQuery("");
+                                setSelectedStatus("all");
+                            }}
+                        >
+                            Clear all filters
+                        </Button>
                     </div>
                 )}
 
@@ -216,9 +298,6 @@ export function Teams() {
                             <div className="space-y-8 py-6">
                                 <SheetHeader className="text-left">
                                     <div className="flex gap-2 mb-4">
-                                        <Badge className="bg-blue-600 hover:bg-blue-600 text-[10px] uppercase tracking-wider border-none rounded-sm">
-                                            {getMockTrack(teams.indexOf(selectedTeam))}
-                                        </Badge>
                                         <Badge variant="outline" className={`text-[10px] uppercase tracking-wider rounded-sm ${selectedTeam.status === "Pending" ? "bg-yellow-600/20 text-yellow-400 border-yellow-500/30" :
                                             selectedTeam.status === "Approved" ? "bg-green-600/20 text-green-400 border-green-500/30" :
                                                 "bg-red-600/20 text-red-400 border-red-400/30"
@@ -231,7 +310,6 @@ export function Teams() {
                                         Team ID: {selectedTeam.id}
                                     </SheetDescription>
                                 </SheetHeader>
-
                                 <div className="space-y-6">
                                     <section>
                                         <div className="flex items-center gap-2 text-sm font-bold text-muted-foreground uppercase tracking-widest mb-3">

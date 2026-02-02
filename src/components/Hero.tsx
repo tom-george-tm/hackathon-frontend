@@ -56,9 +56,12 @@ export function Hero() {
                     I S S U E # 1 :   I M P A C T   I N     N O V A T I O N
                 </motion.div>
 
-                <motion.h1 variants={itemVariants} className="text-6xl md:text-8xl font-bold tracking-tight mb-6">
+                <motion.h1 variants={itemVariants} className="text-6xl md:text-8xl font-bold tracking-tight mb-2">
                     <span className="bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent">MindMesh</span>
                 </motion.h1>
+                <motion.div variants={itemVariants} className="flex justify-center items-center text-xs md:text-sm font-bold text-white tracking-[0.2em] font-mono mb-8 uppercase opacity-80">
+                    TH<img src="/src/assets/tm-logo.svg" alt="o" className="size-3 md:size-4 mx-[1px] mr-[2px] brightness-0 invert" />UGHTMINDS
+                </motion.div>
 
                 <motion.p variants={itemVariants} className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto mb-10 leading-relaxed">
                     Building Intelligent Systems that solve <span className="text-white font-semibold">Global Challenges</span>.
@@ -77,10 +80,10 @@ export function Hero() {
                     <Button
                         size="lg"
                         variant="outline"
-                        onClick={() => document.getElementById('impact')?.scrollIntoView({ behavior: 'smooth' })}
+                        onClick={() => navigate('/teams')}
                         className="min-w-[160px] h-12 text-base bg-white/5 border-white/10 hover:bg-white/10 text-white transition-colors"
                     >
-                        View Impact Tracks
+                        Teams Gallery →
                     </Button>
                 </motion.div>
 

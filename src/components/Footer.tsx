@@ -9,6 +9,7 @@ export function Footer() {
                                 <div className="text-white font-bold text-sm">M</div>
                             </div>
                             <span className="font-bold text-lg">MindMesh</span>
+
                         </div>
                         <p className="text-sm text-muted-foreground leading-relaxed">
                             Engineering the next generation of high-impact AI systems. Solve global problems with autonomous agents.
@@ -47,7 +48,7 @@ export function Footer() {
                 </div>
 
                 <div className="text-center pt-8 border-t border-white/5 text-xs text-muted-foreground">
-                    © 2024 MindMesh. All rights reserved. <br />
+                    © 2026 MindMesh. All rights reserved. <br />
                     Designed for Global Impact.
                 </div>
             </div>

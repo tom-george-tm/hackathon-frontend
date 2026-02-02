@@ -81,6 +81,12 @@ export function RulesSection() {
                                     color: "bg-red-500/20 text-red-400",
                                     title: "No LLM-Only Wrappers",
                                     desc: "Pure prompt-wrappers without autonomous system logic or tangible utility loops will be disqualified."
+                                },
+                                {
+                                    icon: "⚙️",
+                                    color: "bg-purple-500/20 text-purple-400",
+                                    title: "Pre-built Foundations",
+                                    desc: "Projects can be pre-built, but teams must demonstrate significant system logic and integration developed during the hackathon phase."
                                 }
                             ].map((rule, i) => (
                                 <motion.div
