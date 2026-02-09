@@ -3,10 +3,18 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        # Pass environment variables as build arguments
+        # These will be available during the build process
+        - VITE_API_URL=${VITE_API_URL:-}
+        - VITE_APP_NAME=${VITE_APP_NAME:-}
+        - NODE_ENV=${NODE_ENV:-production}
     container_name: hackathon-frontend
     ports:
       - "5173:5173"
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
       - NODE_ENV=production
     healthcheck:
@@ -21,3 +29,4 @@ services:
 networks:
   hackathon-network:
     driver: bridge
+ 
