@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Trash2, PlusCircle, CheckCircle2, User, Briefcase, MessagesSquare, ChevronRight, ChevronLeft } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
+import { toast } from "sonner"
 
 // --- Schema Definition ---
 const memberSchema = z.object({
@@ -27,8 +28,8 @@ const registrationSchema = z.object({
     leader_email: z.string().email("Invalid email"),
     leader_id: z.string().min(1, "Leader ID is required"),
     members: z.array(memberSchema).max(3, "Max 3 additional members"),
-    project_idea: z.string().min(10, "Please provide a detailed description").max(500),
-    impact_statement: z.string().min(10, "Please provide an impact statement").max(500),
+    project_idea: z.string().min(10, "Description must be at least 10 characters").max(2000, "Description cannot exceed 2000 characters"),
+    impact_statement: z.string().min(10, "Impact statement must be at least 10 characters").max(2000, "Impact statement cannot exceed 2000 characters"),
     agreed_to_rules: z.boolean().refine((val) => val === true, {
         message: "You must agree to the rules",
     }),
@@ -97,11 +98,11 @@ export function Register() {
             }
 
             await runtimeApi.post("/teams", payload)
-            alert("Registration Successful!")
+            toast.success("Registration Successful!")
             navigate("/teams")
         } catch (error) {
             console.error("Registration failed", error)
-            alert("Registration failed. Please try again.")
+            toast.error("Registration failed. Please try again.")
         } finally {
             setIsSubmitting(false)
         }
