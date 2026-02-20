@@ -73,13 +73,6 @@ export function Hero() {
                 <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20">
                     <Button
                         size="lg"
-                        onClick={() => navigate('/register')}
-                        className="bg-blue-600 hover:bg-blue-700 text-white min-w-[160px] h-12 text-base shadow-[0_0_20px_rgba(37,99,235,0.3)] hover:shadow-[0_0_25px_rgba(37,99,235,0.5)] transition-shadow"
-                    >
-                        Register Now →
-                    </Button>
-                    <Button
-                        size="lg"
                         variant="outline"
                         onClick={() => navigate('/teams')}
                         className="min-w-[160px] h-12 text-base bg-white/5 border-white/10 hover:bg-white/10 text-white transition-colors"

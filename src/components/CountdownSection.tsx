@@ -20,7 +20,6 @@ export function CountdownSection() {
     }
 
     const [timeLeft, setTimeLeft] = useState(calculateTimeLeft())
-    const [isEnding, setIsEnding] = useState(false)
     const [hasEnded, setHasEnded] = useState(false)
     const [pulseKey, setPulseKey] = useState(0)
     const audioCtxRef = useRef<AudioContext | null>(null)
@@ -53,10 +52,8 @@ export function CountdownSection() {
             const totalSecs = Math.floor(t.total / 1000)
             if (totalSecs <= 0) {
                 setHasEnded(true)
-                setIsEnding(false)
                 clearInterval(timer)
             } else if (totalSecs <= 10) {
-                setIsEnding(true)
                 playBeep(totalSecs <= 3 ? 880 : 440, 0.15)
             }
         }, 1000)

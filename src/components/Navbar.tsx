@@ -1,12 +1,10 @@
 import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Link, useNavigate, useLocation } from "react-router-dom"
+import { Link, useLocation } from "react-router-dom"
 import { motion } from "framer-motion"
 import { runtimeApi } from "@/services/instance/axios"
 import tmLogo from "@/assets/tm-logo.svg"
 
 export function Navbar() {
-    const navigate = useNavigate();
     const location = useLocation();
     const [teamCount, setTeamCount] = useState<number | null>(null);
 
@@ -91,13 +89,6 @@ export function Navbar() {
                 </div>
 
                 <div className="flex items-center gap-4">
-                    <Button
-                        variant="default"
-                        className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/20 transition-all hover:-translate-y-0.5 active:translate-y-0"
-                        onClick={() => navigate('/register')}
-                    >
-                        Register Now
-                    </Button>
                     <Link
                         to="/teams"
                         className="size-8 rounded-full bg-gradient-to-br from-yellow-300 to-yellow-500 flex items-center justify-center text-black font-bold text-xs shadow-inner cursor-pointer hover:scale-110 active:scale-95 transition-all hover:shadow-yellow-500/40"
